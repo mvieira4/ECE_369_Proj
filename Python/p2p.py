@@ -1,82 +1,101 @@
 import socket
 
+# Peer to peer connection class
+
 
 class p2p_connection():
+
+    # Establish sender connection
     def __send_connection(self):
-        # Establish sender connection
-        print("\r[*] Connecting to peer receiver...",
-              end="\n[<] ")
+
+        # Defines sender IP and sender port
+        self.sender_ip = self.receiver_ip
+        self.sender_port = self.receiver_port - 1
+
+        # Creates sender socket
         self.sender = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sender.connect(
-            (socket.gethostname(), self.peer_acceptor_port))
-        self.peer_acceptor_ip, self.peer_acceptor_port = self.sender.getpeername()
-        print(
-            f"\r[+] Sending to {self.peer_acceptor_ip} at port {self.peer_acceptor_port}", end="\n[<] ")
+        self.sender.bind((self.sender_ip, self.sender_port))
+        print(f"[+] Created Sender")
 
+        # Connects to peer receiver port
+        self.sender.connect((socket.gethostname(), self.peer_receiver_port))
+
+    # Establishes receiver connection
     def __get_connection(self):
-        # Establish receiver connection
-        print(f"\r[*] Waiting for receiver connection...")
-        self.acceptor.listen()
-        self.receiver, peer_sender_addr = self.acceptor.accept()
-        self.peer_sender_ip, self.peer_sender_port = peer_sender_addr
-        print(
-            f"\r[+] Receiving from {self.peer_sender_ip} at port {self.peer_sender_port}", end="\n[<] ")
+        # Accepts connection to receiver
+        self.receiver.listen()
+        self.receiver, peer_sender_addr = self.receiver.accept()
+        print(f"[i] Connection Accepted")
 
+        # Gets peer infomation from socket
+        self.peer_sender_ip, self.peer_sender_port = peer_sender_addr
+
+    # Creates receiver socket
+    def __create_receiver(self, port):
+        # Stores receiver information
+        self.receiver_ip = socket.gethostname()
+        self.receiver_port = port
+
+        # Creates receiver socket
+        self.receiver = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.receiver.bind((self.receiver_ip, self.receiver_port))
+        print("[+] Created Receiver")
+
+    # Creates connection which connects to peer
     def __init__(self, *args):
         if(len(args) > 1):
-            # Create acceptor socket
-            self.acceptor = args[0]
-            self.acceptor_ip, self.acceptor_port = self.acceptor.getsockname()
+            # Create receiver socket
+            self.__create_receiver(args[0])
 
             # Establish sender connection
-            self.peer_acceptor_port = args[1]
+            self.peer_receiver_ip = socket.gethostname()
+            self.peer_receiver_port = args[1]
             self.__send_connection()
 
-            # Send receiver information
-            self.sender.send(socket.gethostname().encode("utf-8"))
-            print("\r[i] Sent receiver ip")
-            self.sender.send(str(self.acceptor_port).encode("utf-8"))
-            print("\r[i] Sent receiver port")
+            # Send receiver information\
+            information = socket.gethostname() + " " + str(self.receiver_port)
+            self.sender.send(information.encode("utf-8"))
+            print("[i] Receiver Info Sent")
 
             # Establish receiver connection
             self.__get_connection()
         else:
-            # Create acceptor socket
-            self.acceptor = args[0]
-            self.acceptor_ip, self.acceptor_port = self.acceptor.getsockname()
+            # Create receiver socket
+            self.__create_receiver(args[0])
 
             # Establish receiver connection
             self.__get_connection()
 
-            # Get peer accept information
-            self.peer_acceptor_ip = self.receiver.recv(1024).decode("utf-8")
-            print("\r[i] Received peer receiver ip",
-                  end="\n[<] ")
-            self.peer_acceptor_port = int(
-                self.receiver.recv(1024).decode("utf-8"))
-            print("\r[i] Received peer receiver port",
-                  end="\n[<] ")
+            # Get peer receiver information
+            peer_receiver_ip, receiver_port = self.receiver.recv(1024).decode("utf-8").split(" ")
+            self.peer_receiver_ip = peer_receiver_ip
+            self.peer_receiver_port = int(receiver_port)
+            print("[i] Receiver Info Received")
 
             # Establish sender connection
             self.__send_connection()
 
+    # Sends strings to peer
     def send(self, msg):
         self.sender.send(msg.encode("utf-8"))
-        print("", end="[<] ")
+        print("[i] Sent")
 
+    # Receives information from peer
     def recv(self):
         receiver_str = self.receiver.recv(1024).decode("utf-8")
-        print(
-            f"\r[i] From {self.peer_sender_ip} at port {self.peer_sender_port}\n[>] {receiver_str}", end="\n[<] ")
+        print("[i] Received")
         return receiver_str
 
+    # Attempt to close all connection sockets
     def close(self):
-        self.sender.close()
-        print(
-            f"\r[*] Closing send socket...\n[-] Closing connection to {self.peer_acceptor_ip} at port {self.peer_acceptor_port}", end="\n[<] ")
-        self.receiver.close()
-        print(
-            f"\r[*] Closing receive socket...\n[-] Closing connection to {self.peer_sender_ip} at port {self.peer_sender_port}", end="\n[<] ")
+        try:
+            self.sender.close()
+            print("[-] Closed Sender")
+        except OSError:
+            pass
 
-        self.acceptor.close()
-        print("\r[*] Closing acceptor socket...", end="\n[<] ")
+        try:
+            self.receiver.close()
+            print("[-] Closed Receiver")
+        except OSError:
+            pass

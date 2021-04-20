@@ -3,6 +3,7 @@ import socket
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.bind((socket.gethostname(), 4000))
 client.connect((socket.gethostname(), 4200))
+client.connect((socket.gethostname(), 4100))
 
 msg = client.recv(1024).decode("utf-8")
 print(f"Message: {msg}")

@@ -1,5 +1,4 @@
 from os import truncate
-from collections import deque
 from p2p import p2p_connection
 import threading
 import socket
@@ -19,7 +18,6 @@ def receive_thread(connection):
             if (msg.lower() == "exit"):
                 kill = True
                 connection.close()
-                print("\r[!] Press enter to close")
                 break
         except ConnectionAbortedError:
             break
@@ -34,7 +32,6 @@ def send_thread(connection):
             if(send_str == "exit"):
                 kill = True
                 connection.close()
-                print("\r[!] Press enter to close")
                 break
 
 
@@ -47,13 +44,13 @@ def create_connection_threads(connection):
     receiver.start()
 
 
-def connect_thread(acceptor_socket, peer_acceptor_port):
-    connection = p2p_connection(acceptor_socket, peer_acceptor_port)
+def connect_thread(receiver_socket, peer_receiver_port):
+    connection = p2p_connection(receiver_socket, peer_receiver_port)
     create_connection_threads(connection)
 
 
-def accept_thread(acceptor_socket):
-    connection = p2p_connection(acceptor_socket)
+def accept_thread(receiver_socket):
+    connection = p2p_connection(receiver_socket)
     create_connection_threads(connection)
 
 
@@ -68,14 +65,10 @@ def get_str_thread():
 
 command = input("\n[?] Would you like to connect?\n[<] ")
 if(command.lower() == "yes"):
-    acceptor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    acceptor.bind((socket.gethostname(), 4000))
-    p2p_communication = threading.Thread(connect_thread(acceptor, 4500))
+    p2p_communication = threading.Thread(connect_thread(4000, 4500))
     p2p_communication.start()
 else:
-    acceptor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    acceptor.bind((socket.gethostname(), 4500))
-    p2p_communication = threading.Thread(accept_thread(acceptor))
+    p2p_communication = threading.Thread(accept_thread(4500))
     p2p_communication.start()
 get_str = threading.Thread(target=get_str_thread)
 get_str.daemon
