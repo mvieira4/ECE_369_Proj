@@ -3,13 +3,7 @@ import tkinter as tk
 from socket import *
 from p2p_chat_session_v2 import *
 
-cent_port = input("[?] Enter Central Port Number: ")
-root = tk.Tk()
-root.geometry("600x600")  # SIZE OF APP WINDOW
-root.title("CHAT APP")    # TITLE OF APP WINDOW
-root.configure(bg="white")  # changes the background color
-session = p2p_chat_session(int(cent_port))
-
+# Gets message list from 
 def disp_msg(session):
     while(session.active == True):
       while(session.message_list != []):
@@ -45,6 +39,12 @@ def disconnect():
     send_box.delete("1.0", tk.END)
     session.close_ses()
 
+cent_port = input("[?] Enter Central Port Number: ")
+root = tk.Tk()
+root.geometry("600x600")  # SIZE OF APP WINDOW
+root.title("CHAT APP")    # TITLE OF APP WINDOW
+root.configure(bg="white")  # changes the background color
+session = p2p_chat_session(int(cent_port))
 
 frame = tk.Frame(root, bg="white")
 frame.pack(side=tk.LEFT, anchor=tk.NW)
@@ -52,45 +52,43 @@ frame.pack(side=tk.LEFT, anchor=tk.NW)
 frame1 = tk.Frame(root, bg="white")
 frame1.pack(side=tk.LEFT, anchor=tk.N)
 
-
-# BUTTON DEFINITIONS BELOW
-
-btn = tk.Button(root, text=" Send ", fg="green", bg="white", command=send)
-btn.pack(side=tk.RIGHT, anchor=tk.SW)
-#btn.pack(side = tk.RIGHT, fill = tk.Y)
-#btn.bind("<Return>", send)
-
-ip_box = tk.Text(frame1, height=1, width=14)
-ip_box.pack(side=tk.TOP, anchor=tk.N)
-
-port_box = tk.Text(frame1, height=1, width=10)
-port_box.pack(side=tk.TOP, anchor=tk.N)
-
-discon_btn = tk.Button(frame1, text="  Disconnect    ",
-                          fg="red", bg="white", command=disconnect)
-discon_btn.pack(side=tk.BOTTOM)
-#discon_btn.pack(side = tk.TOP, fill = tk.Y)
-
-con_btn = tk.Button(frame1, text="     Connect     ",
-                       fg="blue", bg="white", command=connect)
-con_btn.pack(side=tk.BOTTOM)
-#con_btn.pack(side = tk.TOP, fill = tk.Y)
-
+# Defines ip label
 ip_label = tk.Label(frame, text="IP", fg="green", bg="white")
 ip_label.pack(side=tk.TOP, anchor=tk.NW)
 
+# Defines port label
 port_label = tk.Label(frame, text="PORT", fg="green", bg="white")
 port_label.pack(side=tk.BOTTOM, anchor=tk.NW)
 
+# Defines send button
+send_btn = tk.Button(root, text=" Send ", fg="green", bg="white", command=send)
+send_btn.pack(side=tk.RIGHT, anchor=tk.SW)
 
-# this defines the box where text is displayed
+#  Defines disconnect button
+discon_btn = tk.Button(frame1, text="  Disconnect    ", fg="red", bg="white", command=disconnect)
+discon_btn.pack(side=tk.BOTTOM)
+
+# Defines connection button
+con_btn = tk.Button(frame1, text="     Connect     ", fg="blue", bg="white", command=connect)
+con_btn.pack(side=tk.BOTTOM)
+
+# Defines the box where the users type ip
+ip_box = tk.Text(frame1, height=1, width=14)
+ip_box.pack(side=tk.TOP, anchor=tk.N)
+
+# Defines the box where the users type port
+port_box = tk.Text(frame1, height=1, width=10)
+port_box.pack(side=tk.TOP, anchor=tk.N)
+
+# Defines the box where text is displayed
 disp_box = tk.Text((root), height=15, width=100)
 disp_box.pack(side=tk.TOP)
 
-# this defnes the box where the users type
+# Defines the box where the users type messages
 send_box = tk.Text((root), height=4, width=100)
 send_box.pack(side=tk.BOTTOM)
 
+# Starts displaying messages
 disp = Thread(target=disp_msg,args=(session,),daemon=True)
 disp.start()
 
