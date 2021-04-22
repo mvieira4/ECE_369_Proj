@@ -88,6 +88,7 @@ class p2p_chat_session:
             while(self.send_queue != [] and self.connection_list != []):
                 # Takes first item in list and sends it to all connections
                 string = self.send_queue.pop()
+                self.message_list.append(string)
                 for _, send_pipe in self.connection_list:
                     send_pipe.send(string.encode("utf-8"))
 
