@@ -1,13 +1,15 @@
-#from tkinter import *
+from time import sleep
 import tkinter as tk
 from socket import *
-from p2p_chat_session_v2 import *
+from threading import *
+from p2p_chat_session_v2 import p2p_chat_session
 
 # Gets message list from 
 def disp_msg(session):
     while(session.active == True):
-      while(session.message_list != []):
-        disp_box.insert(tk.INSERT, session.message_list.pop())
+        while(session.message_list != []):
+            disp_box.insert(tk.INSERT, session.message_list.pop())
+        sleep(0.5)
 
 def send():                                                   # send function defined here
     retrieveinput = send_box.get("1.0", tk.END)

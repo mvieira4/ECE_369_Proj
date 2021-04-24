@@ -1,6 +1,6 @@
 from socket import *
 from threading import *
-
+from time import sleep
 
 class p2p_chat_session:
     # List of all sent and received messages
@@ -66,7 +66,7 @@ class p2p_chat_session:
             print(f"[i] Created Sending Pipeline")
 
             # Starts listening for incoming messages and adds them to message list
-            recv = Thread(target=self.recv_str, args=(recv_pipe,),daemon=True)
+            recv = Thread(target=self.recv_str, args=(recv_pipe,), daemon=True)
             recv.start()
             print("[i] Listening On Receiving Pipeline")
 
@@ -80,6 +80,7 @@ class p2p_chat_session:
             while(self.message_list != [] and self.connection_list != []):
                 string = self.message_list.pop()
                 print(f"{string}")
+            sleep(0.3)
 
     # Send all contents of send que to all connections
     def send_all_str(self):
@@ -87,10 +88,11 @@ class p2p_chat_session:
         while(self.active == True):
             while(self.send_queue != [] and self.connection_list != []):
                 # Takes first item in list and sends it to all connections
-                string = self.send_queue.pop()
+                string = str(self.cent_addr[1]) + ": " + self.send_queue.pop()
                 self.message_list.append(string)
                 for _, send_pipe in self.connection_list:
                     send_pipe.send(string.encode("utf-8"))
+            sleep(0.3)
 
     # Puts string in send queue
     def send_str(self, string):

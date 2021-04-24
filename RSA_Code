@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include<math.h>
+
+//Program is intended to generate an rsa key using the public and private keys
+//idea is to have the message converted into either a string or series of chars, translate the value into its ascii value, and then encrypt it here
+
+
+int gcd(int val1, int val2) //method/function finds the greatest common denominator
+{
+	int modCheck;
+	while (true)
+	{
+		modCheck = val1 % val2;
+		if (modCheck == 0)
+		{
+			return val2;
+		}
+		val1 = val2;
+		val2 = modCheck;
+	}
+}
+
+
+int main() //consider changing function type and input/outputs to function
+{
+	double p, q, n, ePublic, phi, ePrivate, ePrivateTemp, unencrypted,encryptTest,unencryptTest, temp1;	//p, q are random numbers and can be changed, n and phi is based on p, ePublic is used for public encryption key
+	int gcdTest;	 // ePrivate and ePrivateTemp are used in generating a private key, unencrypted will eventually become the input and encrypted will be used to generate the output, gcdTest is based on gcd method
+	//unencryptTest and encryptTest are used to test and display the output
+	p = 17;	//any prime #
+	q = 3;	//any prime #
+	ePublic = 47;	//prime number
+	//ePrivateTemp = 5;	//any number(doesn't need to be prime)
+	unencrypted = 25;	//raw data sent to program (will be our input for messages) (9 is just a test value)
+	n = q * p;
+	phi = (p - 1)*(q - 1);
+	while (ePublic < phi)
+	{
+		gcdTest = gcd(ePublic, phi);
+		if (ePublic == 1)
+			break;
+		else
+			ePublic++;
+	}
+	ePrivateTemp = 1 / ePublic;		//ePrivate must satisfy condition of ePrivate*ePublic = 1 % phi
+	ePrivate = fmod(ePrivateTemp, phi);
+	encryptTest = pow(unencrypted, ePublic);		//encryption keys are generated here
+	unencryptTest = pow(encryptTest, ePrivate);
+	encryptTest = fmod(encryptTest, n);				//encrypt
+	unencryptTest = fmod(unencryptTest, n);			//decrypt
+	printf("Original Message data = %lf", unencrypted);		//print statements for debugging
+	printf("\np = %lf", p);
+	printf("\nq = %lf", q);
+	printf("\nn = pq = %lf", n);
+	printf("\nphi = %lf", phi);
+	printf("\nePublic = %lf", ePublic);
+	printf("\nEPrivate = %lf", ePrivate);
+	printf("\nEncrypted data = %lf", encryptTest);
+	printf("\nDecrypted message = %lf", unencryptTest);
+	return 0;	//concider changing return value based on how integration to project works
+}
