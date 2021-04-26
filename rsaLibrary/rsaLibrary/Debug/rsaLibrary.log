@@ -1,4 +1,4 @@
 ﻿  rsaLibrary.cpp
 c:\users\hocke\onedrive\documents\ece 369\rsalibrary\rsalibrary\rsalibrary.cpp(41): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\hocke\onedrive\documents\ece 369\rsalibrary\rsalibrary\rsalibrary.cpp(65): warning C4244: 'return': conversion from 'double' to 'char', possible loss of data
+c:\users\hocke\onedrive\documents\ece 369\rsalibrary\rsalibrary\rsalibrary.cpp(75): warning C4244: 'return': conversion from 'double' to 'char', possible loss of data
   rsaLibrary.vcxproj -> C:\Users\hocke\OneDrive\Documents\ECE 369\rsaLibrary\Debug\rsaLibrary.lib

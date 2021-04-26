@@ -27,7 +27,7 @@ namespace rsaLibrary
 		}
 	}
 
-	encryptedData rsaClass::RSA(encryptedData input) //unencrypted is the ascii value of the input char, identifier tells if we are encrypting(1) or decrypting(anything other than 1)
+	double rsaClass:: RSA(encryptedData input, int identifier) //unencrypted is the ascii value of the input char, identifier tells if we are encrypting(1) or decrypting(anything other than 1)
 	{
 		double p, q, n, ePublic, phi, ePrivate, ePrivateTemp;	//p, q are random numbers and can be changed, n and phi is based on p, ePublic is used for public encryption key
 		int gcdTest;	 // ePrivate and ePrivateTemp are used in generating a private key, gcdTest is based on gcd method
@@ -46,25 +46,34 @@ namespace rsaLibrary
 		}
 		ePrivateTemp = 1 / ePublic;		//ePrivate must satisfy condition of ePrivate*ePublic = 1 % phi
 		ePrivate = fmod(ePrivateTemp, phi);
-		input.encryptedValue = pow(input.decryptedValue, ePublic);		//encryption keys are generated here
-		input.decryptedValue = round(pow(input.encryptedValue, ePrivate));		//decrypted data defined
-		input.encryptedValue = fmod(input.encryptedValue, n);					//encrypted data defined
-		return input;	//returns both encrypted and decrypted data
+		if (identifier == 1)
+		{
+			input.encryptedValueUnmodded = pow(input.decryptedValue, ePublic);		//encryption keys are generated here
+			input.encryptedValue = fmod(input.encryptedValueUnmodded, n);					//encrypted data defined
+			return input.encryptedValue;
+		}
+		else
+		{
+			input.decryptedValue = round(pow(input.encryptedValueUnmodded, ePrivate));		//decrypted data defined
+			return input.decryptedValue;
+		}
 	}
 
-	double rsaClass::toAscii(char input)
+	double rsaClass:: toAscii(char input)
 	{
 		double ascii;
 		ascii = double(input);
 		return ascii;
 	}
-	char rsaClass::toChar(double input)
+	char rsaClass :: toChar(double input)
 	{
 		double character;
 		character = char(input);
 		return character;
 	}
 }
+
+//library file reference:  https://docs.microsoft.com/en-us/cpp/build/walkthrough-creating-and-using-a-static-library-cpp?view=msvc-160
 //TO TEST: CREATE A CPP FILE AND PASTE THE FOLLOWING
 /*
 
@@ -84,9 +93,12 @@ void main()		//used for debugging, not needed in project application of code, pr
 	asciiTest.encryptedValue = -1;						//not needed necessarily, just done for initialization/safety
 	printf("Character input = %c\n", rawInput);
 	printf("Ascii converter = %lf\n", asciiTest.decryptedValue);	//demonstrate toAscii
-	asciiTest = RSA(asciiTest);										//data encrypted here, saves both encrypted and unencrypted data to asciiTest
+	identifier = 1;
+	asciiTest.encryptedValue = RSA(asciiTest, identifier);										//data encrypted here, saves both encrypted and unencrypted data to asciiTest
 	encryptionTest = asciiTest.encryptedValue;
 	printf("RSA encryption function returns: %lf\n", encryptionTest);	//test encryption functionality (print this if you want to show the encrypted data)
+	identifier2 = 0;
+	asciiTest.encryptedValue = RSA(asciiTest, identifier2);
 	decryptionTestAscii = asciiTest.decryptedValue;
 	printf("RSA decryption function returns: %lf\n", decryptionTestAscii);	//test decryption functionality (print this if you want to show the decrypted data in number form)
 	decryptionTestChar = toChar(decryptionTestAscii);

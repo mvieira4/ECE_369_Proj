@@ -6,6 +6,7 @@ namespace rsaLibrary
 	public:
 		double encryptedValue;
 		double decryptedValue;
+		double encryptedValueUnmodded;
 	};
 
 	class rsaClass
@@ -13,7 +14,7 @@ namespace rsaLibrary
 	public:
 		int gcd(int val1, int val2);
 
-		encryptedData RSA(encryptedData input);
+		double RSA(encryptedData input, int identifier);
 
 		double toAscii(char input);
 
