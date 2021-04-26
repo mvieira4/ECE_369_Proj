@@ -27,19 +27,14 @@ def connect():  # this is the function that will execute when the connect button
     ip_box.delete("1.0",tk.END)
     port_box.delete("1.0",tk.END)
 
-    retrieve_input2 = port_box.get("1.0", tk.END)
-    disp_box.insert(tk.INSERT, retrieve_input2)
-    
-
     session.requ_p2p(gethostname(), int(port_value))
 
     # this is the function that will execute when the disconnect button is pressed
 def disconnect():
-    # DELETE EVERYTHING WITHIN THIS FUNCTION AND ADD THE CODE TO DISCONNECT
-    retrieveinput = send_box.get("1.0", tk.END)
-    disp_box.insert(tk.INSERT, retrieveinput)
-    send_box.delete("1.0", tk.END)
-    session.close_ses()
+    ip_box.delete("1.0",tk.END)
+    port_box.delete("1.0",tk.END)
+
+    session.discon_ses()
 
 cent_port = input("[?] Enter Central Port Number: ")
 root = tk.Tk()
@@ -95,3 +90,5 @@ disp = Thread(target=disp_msg,args=(session,),daemon=True)
 disp.start()
 
 root.mainloop()
+
+session.close_ses()
