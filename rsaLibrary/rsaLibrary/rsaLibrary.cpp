@@ -1,4 +1,4 @@
-#include <stdio.h>
+/*#include <stdio.h>
 #include<math.h>
 #include "rsaLibrary.h"
 //Program is intended to generate an rsa key using the public and private keys
@@ -8,7 +8,7 @@
 public:
 	double encryptedValue;
 	double decryptedValue;
-};*/
+};
 namespace rsaLibrary
 {
 
@@ -72,7 +72,7 @@ namespace rsaLibrary
 		return character;
 	}
 }
-
+*/
 //library file reference:  https://docs.microsoft.com/en-us/cpp/build/walkthrough-creating-and-using-a-static-library-cpp?view=msvc-160
 //TO TEST: CREATE A CPP FILE AND PASTE THE FOLLOWING
 /*
