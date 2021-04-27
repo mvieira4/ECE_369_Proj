@@ -1,0 +1,5 @@
+# tasks.py
+invoke.run(
+    "g++ -O3 -Wall -Werror -shared -std=c++11 -fPIC RSA_pybind11_wrapper.cpp "
+    "-o lipRSA.so "
+)
