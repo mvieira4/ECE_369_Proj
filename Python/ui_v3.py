@@ -34,7 +34,7 @@ def disconnect():
     ip_box.delete("1.0",tk.END)
     port_box.delete("1.0",tk.END)
 
-    session.discon_ses()
+    session.discon_all()
 
 cent_port = input("[?] Enter Central Port Number: ")
 root = tk.Tk()
