@@ -26,12 +26,12 @@ class p2p_chat_session:
         print(f"[i] Created Central Socket At {gethostname()}:{cent_port}")
 
         # Starts waiting for inbound connections
-        wait = Thread(target=self.__acpt_p2p, daemon=True)
+        wait = Thread(target=self.__acpt_p2p)
         wait.start()
         print("[*] Waiting For Inbound Connection...")
 
         # Starts waiting for string to send to all connections
-        send_all = Thread(target=self.__send_all_str, daemon=True)
+        send_all = Thread(target=self.__send_all_str)
         send_all.start()
         print("[i] Session Started")
 
@@ -120,7 +120,6 @@ class p2p_chat_session:
                 ip, port_str = self.cent_addr
                 port = int(port_str)
                 print(f"({ip},{port}")
-                self.connection_dict[key][1].send(f"{target_ip} {target_port}".encode("utf-8"))
 
                 # Disconnect from a peer
                 if(len(self.connection_dict)> 2):
@@ -130,30 +129,32 @@ class p2p_chat_session:
     def __acpt_p2p(self):
         # Accepts connections as long as session active
         while(self.active == True):
-            recv_pipe, _ = self.cent_sock.accept()
-            print("[i] Created Receiving Pipeline")
+            try:
+                recv_pipe, _ = self.cent_sock.accept()
+                print("[i] Created Receiving Pipeline")
 
-            send_pipe, _ = self.cent_sock.accept()
-            print(f"[i] Created Sending Pipeline")
+                send_pipe, _ = self.cent_sock.accept()
+                print(f"[i] Created Sending Pipeline")
 
-            target_ip, target_port_str = recv_pipe.recv(
-                1024).decode("utf-8").split()
-            target_port = int(target_port_str)
+                target_ip, target_port_str = recv_pipe.recv(
+                    1024).decode("utf-8").split()
+                target_port = int(target_port_str)
 
-            # Starts listening for incoming messages and adds them to message list
-            recv = Thread(target=self.recv_str,
-                            args=(recv_pipe,), daemon=True)
-            recv.start()
-            print("[i] Listening On Receiving Pipeline")
+                # Starts listening for incoming messages and adds them to message list
+                recv = Thread(target=self.recv_str,
+                                args=(recv_pipe,))
+                recv.start()
+                print("[i] Listening On Receiving Pipeline")
 
-            # Adds receiving socket and send socket as tuple to connection list
-            self.connection_dict[target_port] = (recv_pipe, send_pipe)
-            print(
-                f"[+] {len(self.connection_dict)} Connection(s)")
+                # Adds receiving socket and send socket as tuple to connection list
+                self.connection_dict[target_port] = (recv_pipe, send_pipe)
+                print(
+                    f"[+] {len(self.connection_dict)} Connection(s)")
 
-            for thing in self.connection_dict.keys():
-                print(f"{thing}")
-
+                for thing in self.connection_dict.keys():
+                    print(f"{thing}")
+            except OSError:
+                pass
             
 
     # Send all contents of send que to all connections
@@ -204,19 +205,13 @@ class p2p_chat_session:
                     target_port = int(info[1])
                     print(f"{target_ip},{target_port}")
                     self.__send_p2p(target_ip, target_port)
-
-                    if(len(info)>2):
-                        drop_ip = info[2]
-                        drop_port = int(info[3])
-                        print(f"{drop_ip},{drop_port}")
-
-                        self.sever_con(drop_port)
                     
                     print(f"[-] {len(self.connection_dict)} Connection(s)")                  
 
             except OSError:
                 break
 
+    # Closes all pipes and removes the connection from dictionary
     def sever_con(self, target_port):
             for pipe in self.connection_dict.pop(target_port):
                 pipe.close()
@@ -226,16 +221,31 @@ class p2p_chat_session:
 
 
     def discon_all(self):
-        for connection in self.connection_dict.values():
-            try:
-                connection[1].send("DIS".encode("utf-8"))
-                ip, port = self.cent_addr
-                connection[1].send(f"{ip} {port}".encode("utf-8"))
-                for pipe in connection:
-                    pipe.close()
-                    print("[i] Pipe Closed")
-            except ConnectionResetError:
-                pass
+        try:
+            # Gets central socket ip and port
+            ip, port_str = self.cent_addr
+            port = int(port_str)
+            print(f"({ip},{port}")
+    
+            # Patches connection if more than 1
+            if(len(self.connection_dict)>1):
+                key1 = list(self.connection_dict.keys())[0]
+                key2 = list(self.connection_dict.keys())[1]
+                self.connection_dict[key1][1].send("CON".encode("utf-8"))
+                self.connection_dict[key1][1].send(f"{ip} {key2}".encode("utf-8"))
+                self.sever_con(key1)
+
+            # Disconnects from last peer
+            key = list(self.connection_dict.keys())[0]
+            self.connection_dict[key][1].send("DIS".encode("utf-8"))
+            self.connection_dict[key][1].send(f"{ip} {port}".encode("utf-8"))
+            self.sever_con(key)
+            
+        except ConnectionResetError:
+            pass
+
+        except IndexError:
+            pass
         self.connection_dict = {}
         print(
             f"[-] {len(self.connection_dict)} Connection(s)")
