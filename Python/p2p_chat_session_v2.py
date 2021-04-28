@@ -2,6 +2,7 @@ from socket import *
 from threading import *
 from time import *
 from datetime import *
+import RSA_pybind11
 
 
 class p2p_chat_session:
@@ -182,6 +183,14 @@ class p2p_chat_session:
     def send_str(self, string):
         time_stamp = strftime('%Y-%m-%d %H:%M:%S')
         send_str = f"{time_stamp}| {self.cent_addr[1]}: {string}"
+        char_arr = list(send_str)
+        dec_str = ""
+        for char in char_arr:
+            askii = RSA_pybind11.toAscii(char)
+            decrip = RSA_pybind11.RSA(askii, )
+
+            dec_str += RSA_pybind11.toChar(decrip)
+            self.send_queue.append(dec_str)
         self.send_queue.append(send_str)
 
     # Recives string from peer and ads it to message list
@@ -194,7 +203,14 @@ class p2p_chat_session:
                 if(action == "MES"):
                     message = recv_pipe.recv(1024).decode("utf-8")
                     if(message not in self.message_list):
-                        self.send_queue.append(message)
+                        char_arr = list(message)
+                        dec_str = ""
+                        for char in char_arr:
+                            askii = RSA_pybind11.toAscii(char)
+                            decrip = RSA_pybind11.RSA(askii, )
+
+                            dec_str += RSA_pybind11.toChar(decrip)
+                        self.send_queue.append(dec_str)
                         print("[i] Message Sent")
                 elif(action == "DIS"):
                     info = recv_pipe.recv(
