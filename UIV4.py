@@ -148,6 +148,9 @@ message_display_box.pack(side = tk.TOP)
 text_input_box = tk.Text ((root) ,height=4, width=100)  # this defnes the box where the users type
 text_input_box.pack(side = tk.BOTTOM)
 
+disp = Thread(target=disp_msg,args=(session,),daemon=True)
+disp.start()
+
 
 #message_display_box.configure(yscrollcommand=scroll_y.set)
 
