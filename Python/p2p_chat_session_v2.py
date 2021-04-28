@@ -1,11 +1,15 @@
 from socket import *
 from threading import *
-from time import sleep
+from time import *
+from datetime import *
 
 
 class p2p_chat_session:
     # List of all sent and received messages
     message_list = []
+
+    # Queue of all sent and received messages that haven't been displayed
+    display_queue = []
 
     # Queue of messages waiting to be sent
     send_queue = []
@@ -68,15 +72,13 @@ class p2p_chat_session:
             self.connection_dict[target_port] = (recv_pipe, send_pipe)
             print(
                 f"[+] {len(self.connection_dict)} Connection(s)")
-                
-            if(len(self.connection_dict)> 2):
-                    key = list(self.connection_dict.keys())[0]
-                    self.sever_con(key)
 
-
-
+            if(len(self.connection_dict) > 2):
+                key = list(self.connection_dict.keys())[0]
+                self.sever_con(key)
 
     # Requests p2p connection
+
     def requ_p2p(self, target_ip, target_port):
         ip, port = self.cent_addr
         # Stops connection from connection to itself
@@ -112,19 +114,20 @@ class p2p_chat_session:
                 f"[+] {len(self.connection_dict)} Connection(s)")
 
             # Tell peer to connect to target
-            if(len(self.connection_dict)> 1):
+            if(len(self.connection_dict) > 1):
                 key = list(self.connection_dict.keys())[0]
                 self.connection_dict[key][1].send("CON".encode("utf-8"))
                 print(f"({target_ip},{target_port}")
-                self.connection_dict[key][1].send(f"{target_ip} {target_port}".encode("utf-8"))
+                self.connection_dict[key][1].send(
+                    f"{target_ip} {target_port}".encode("utf-8"))
                 ip, port_str = self.cent_addr
                 port = int(port_str)
                 print(f"({ip},{port}")
 
                 # Disconnect from a peer
-                if(len(self.connection_dict)> 2):
+                if(len(self.connection_dict) > 2):
                     self.sever_con(key)
-            
+
     # Accepts p2p connection
     def __acpt_p2p(self):
         # Accepts connections as long as session active
@@ -142,7 +145,7 @@ class p2p_chat_session:
 
                 # Starts listening for incoming messages and adds them to message list
                 recv = Thread(target=self.recv_str,
-                                args=(recv_pipe,))
+                              args=(recv_pipe,))
                 recv.start()
                 print("[i] Listening On Receiving Pipeline")
 
@@ -155,27 +158,31 @@ class p2p_chat_session:
                     print(f"{thing}")
             except OSError:
                 pass
-            
 
     # Send all contents of send que to all connections
+
     def __send_all_str(self):
         # Sends content while session active, there are connections, and things to send
         while(self.active == True):
             while(self.send_queue != [] and self.connection_dict != {}):
                 # Takes first item in list and sends it to all connections
-                string = str(self.cent_addr[1]) + ": " + self.send_queue.pop()
+                string = self.send_queue.pop()
                 self.message_list.append(string)
+                self.display_queue.append(string)
                 for _, send_pipe in self.connection_dict.values():
                     try:
                         send_pipe.send("MES".encode("utf-8"))
                         send_pipe.send(string.encode("utf-8"))
+                        sleep(0.1)
                     except ConnectionResetError:
                         pass
             sleep(0.3)
 
     # Puts string in send queue
     def send_str(self, string):
-        self.send_queue.append(string)
+        time_stamp = strftime('%Y-%m-%d %H:%M:%S')
+        send_str = f"{time_stamp}| {self.cent_addr[1]}: {string}"
+        self.send_queue.append(send_str)
 
     # Recives string from peer and ads it to message list
     def recv_str(self, recv_pipe):
@@ -186,8 +193,9 @@ class p2p_chat_session:
                 # Sends message
                 if(action == "MES"):
                     message = recv_pipe.recv(1024).decode("utf-8")
-                    self.message_list.append(message)
-
+                    if(message not in self.message_list):
+                        self.send_queue.append(message)
+                        print("[i] Message Sent")
                 elif(action == "DIS"):
                     info = recv_pipe.recv(
                         1024).decode("utf-8").split()
@@ -205,20 +213,19 @@ class p2p_chat_session:
                     target_port = int(info[1])
                     print(f"{target_ip},{target_port}")
                     self.__send_p2p(target_ip, target_port)
-                    
-                    print(f"[-] {len(self.connection_dict)} Connection(s)")                  
+
+                    print(f"[-] {len(self.connection_dict)} Connection(s)")
 
             except OSError:
                 break
 
     # Closes all pipes and removes the connection from dictionary
     def sever_con(self, target_port):
-            for pipe in self.connection_dict.pop(target_port):
-                pipe.close()
-                print("[i] Pipe Closed")
-            print(
-                        f"[-] {len(self.connection_dict)} Connection(s)")
-
+        for pipe in self.connection_dict.pop(target_port):
+            pipe.close()
+            print("[i] Pipe Closed")
+        print(
+            f"[-] {len(self.connection_dict)} Connection(s)")
 
     def discon_all(self):
         try:
@@ -226,13 +233,14 @@ class p2p_chat_session:
             ip, port_str = self.cent_addr
             port = int(port_str)
             print(f"({ip},{port}")
-    
+
             # Patches connection if more than 1
-            if(len(self.connection_dict)>1):
+            if(len(self.connection_dict) > 1):
                 key1 = list(self.connection_dict.keys())[0]
                 key2 = list(self.connection_dict.keys())[1]
                 self.connection_dict[key1][1].send("CON".encode("utf-8"))
-                self.connection_dict[key1][1].send(f"{ip} {key2}".encode("utf-8"))
+                self.connection_dict[key1][1].send(
+                    f"{ip} {key2}".encode("utf-8"))
                 self.sever_con(key1)
 
             # Disconnects from last peer
@@ -240,7 +248,7 @@ class p2p_chat_session:
             self.connection_dict[key][1].send("DIS".encode("utf-8"))
             self.connection_dict[key][1].send(f"{ip} {port}".encode("utf-8"))
             self.sever_con(key)
-            
+
         except ConnectionResetError:
             pass
 
