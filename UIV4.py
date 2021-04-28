@@ -1,5 +1,6 @@
 #from tkinter import *
-import tkinter as tk 
+import tkinter as tk
+from p2p_chat_session_v2 import p2p_chat_session
 #from tkinter import scrolledtext
 
 root = tk.Tk() 
@@ -40,9 +41,12 @@ def clicked():                                                   # clicked funct
    retrievename = nameBox.get("1.0",tk.END)
    message_display_box.insert(tk.INSERT, retrievename)
 
-   retrieveinput  =  T.get("1.0",tk.END)       # should retrieve the text entered by user
+   retrieveinput  =  text_input_box.get("1.0",tk.END)       # should retrieve the text entered by user
+   #p2p_chat_session.send_str(socket.gethostname(), retrieveinput)
    message_display_box.insert(tk.INSERT, retrieveinput)         # clears the text entry box after each sent message
    text_input_box.delete("1.0",tk.END)
+
+  
 
    
                         
