@@ -5,10 +5,19 @@ from threading import *
 from p2p_chat_session_v2 import p2p_chat_session
 #from tkinter import scrolledtext
 
-root = tk.Tk() 
+
+cent_port = input("[?] Enter Central Port Number: ")
+root = tk.Tk()
 root.geometry("600x600")  # SIZE OF APP WINDOW
 root.title("CHAT APP")    # TITLE OF APP WINDOW
-root.configure(bg = "black") # changes the background color 
+root.configure(bg="black")  # changes the background color
+session = p2p_chat_session(int(cent_port))
+
+
+##root = tk.Tk() 
+##root.geometry("600x600")  # SIZE OF APP WINDOW
+##root.title("CHAT APP")    # TITLE OF APP WINDOW
+##root.configure(bg = "black") # changes the background color 
 
 
 # lbl = Label(root, text="Hello")
@@ -44,7 +53,9 @@ def clicked():                                                   # clicked funct
    message_display_box.insert(tk.INSERT, retrievename)
 
    retrieveinput  =  text_input_box.get("1.0",tk.END)       # should retrieve the text entered by user
-   p2p_chat_session.send_str(p2p_chat_session, retrieveinput)
+   print(retrieveinput)
+   print(session)
+   session.send_str(retrieveinput)
    message_display_box.insert(tk.INSERT, retrieveinput)         # clears the text entry box after each sent message
    text_input_box.delete("1.0",tk.END)
 
@@ -67,7 +78,7 @@ def connect(): # this is the function that will execute when the connect button 
    
    retrieveinput2  =  IPBox.get("1.0",tk.END)       
    message_display_box.insert(tk.INSERT, retrieveinput2)
-   p2p_chat_session.requ_p2p(p2p_chat_session, gethostname(), int(retrieveinput2))
+   session.requ_p2p(str(gethostname()), retrieveinput2)
    text_input_box.delete("1.0",tk.END)
 
 

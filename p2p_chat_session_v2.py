@@ -36,10 +36,11 @@ class p2p_chat_session:
     def requ_p2p(self, target_ip, target_port):
         # Creates send socket
         send_pipe = socket(AF_INET, SOCK_STREAM)
-        send_pipe.connect((target_ip,target_port))
+        send_pipe.connect((target_ip,int(target_port)))
 
         # Gets central socket info, sends it, and accepts connection
-        info = " ".join(self.cent_addr)
+        #info = " ".join(self.cent_addr)
+        info = str(self.cent_addr[0]) + " " + str(self.cent_addr[1])
         send_pipe.send(info.encode("utf-8"))
         recv_pipe, _ = self.cent_sock.accept()
 
