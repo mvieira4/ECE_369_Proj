@@ -67,7 +67,7 @@ def connect(): # this is the function that will execute when the connect button 
    
    retrieveinput2  =  IPBox.get("1.0",tk.END)       
    message_display_box.insert(tk.INSERT, retrieveinput2)
-   p2p_chat_session.requ_p2p(p2p_chat_session, IPValue, int(retrieveinput2))
+   p2p_chat_session.requ_p2p(p2p_chat_session, gethostname(), int(retrieveinput2))
    text_input_box.delete("1.0",tk.END)
 
 
