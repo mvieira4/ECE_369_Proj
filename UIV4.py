@@ -1,5 +1,7 @@
 #from tkinter import *
 import tkinter as tk
+from socket import *
+from threading import *
 from p2p_chat_session_v2 import p2p_chat_session
 #from tkinter import scrolledtext
 
@@ -42,7 +44,7 @@ def clicked():                                                   # clicked funct
    message_display_box.insert(tk.INSERT, retrievename)
 
    retrieveinput  =  text_input_box.get("1.0",tk.END)       # should retrieve the text entered by user
-   #p2p_chat_session.send_str(socket.gethostname(), retrieveinput)
+   p2p_chat_session.send_str(p2p_chat_session, retrieveinput)
    message_display_box.insert(tk.INSERT, retrieveinput)         # clears the text entry box after each sent message
    text_input_box.delete("1.0",tk.END)
 
@@ -60,10 +62,12 @@ def connect(): # this is the function that will execute when the connect button 
 	# when the connect button is pressed the IP and port numbers will be stored in IPValue and PORTValue 
    IPValue=IPBox.get("1.0","end-1c") # STORES THE IP VALUE
    PORTValue=PortBox.get("1.0","end-1c") # STORES THE PORT VALUE
-   
+   print(IPValue)
+   print(PORTValue)
    
    retrieveinput2  =  IPBox.get("1.0",tk.END)       
-   message_display_box.insert(tk.INSERT, retrieveinput2)         
+   message_display_box.insert(tk.INSERT, retrieveinput2)
+   p2p_chat_session.requ_p2p(p2p_chat_session, IPValue, int(retrieveinput2))
    text_input_box.delete("1.0",tk.END)
 
 
