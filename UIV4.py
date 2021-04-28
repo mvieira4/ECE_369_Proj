@@ -3,6 +3,7 @@ import tkinter as tk
 from socket import *
 from threading import *
 from p2p_chat_session_v2 import p2p_chat_session
+from time import sleep
 #from tkinter import scrolledtext
 
 
@@ -12,6 +13,7 @@ root.geometry("600x600")  # SIZE OF APP WINDOW
 root.title("CHAT APP")    # TITLE OF APP WINDOW
 root.configure(bg="black")  # changes the background color
 session = p2p_chat_session(int(cent_port))
+#session.acpt_p2p()
 
 
 ##root = tk.Tk() 
@@ -43,7 +45,11 @@ session = p2p_chat_session(int(cent_port))
 
 #message_display_box = Text((root) ,height = 18, width=100)
 #message_display_box.pack(side = TOP)
-
+def disp_msg(session):
+    while(session.active == True):
+        while(session.display_queue != []):
+            message_display_box.insert(tk.INSERT, session.display_queue.pop())
+        sleep(0.5)
 
 def clicked():                                                   # clicked function defined here 
   # message_display_box = tk.Text((root) ,height = 18, width=100)
@@ -53,8 +59,8 @@ def clicked():                                                   # clicked funct
    message_display_box.insert(tk.INSERT, retrievename)
 
    retrieveinput  =  text_input_box.get("1.0",tk.END)       # should retrieve the text entered by user
-   print(retrieveinput)
-   print(session)
+   #print(retrieveinput)
+   #print(session)
    session.send_str(retrieveinput)
    message_display_box.insert(tk.INSERT, retrieveinput)         # clears the text entry box after each sent message
    text_input_box.delete("1.0",tk.END)
@@ -73,8 +79,8 @@ def connect(): # this is the function that will execute when the connect button 
 	# when the connect button is pressed the IP and port numbers will be stored in IPValue and PORTValue 
    IPValue=IPBox.get("1.0","end-1c") # STORES THE IP VALUE
    PORTValue=PortBox.get("1.0","end-1c") # STORES THE PORT VALUE
-   print(IPValue)
-   print(PORTValue)
+   #print(IPValue)
+   #print(PORTValue)
    
    retrieveinput2  =  IPBox.get("1.0",tk.END)       
    message_display_box.insert(tk.INSERT, retrieveinput2)

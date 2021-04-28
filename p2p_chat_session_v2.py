@@ -5,7 +5,7 @@ from threading import *
 
 class p2p_chat_session:
     # List of all sent and received messages
-    message_list = []
+    display_queue = []
 
     # Queue of messages waiting to be sent
     send_queue = []
@@ -72,8 +72,8 @@ class p2p_chat_session:
     # Print all messages
     def recv_prt_all(self):
         while(self.active == True):
-            while(self.message_list != [] and self.connection_list != []):
-                string = self.message_list.pop()
+            while(self.display_queue != [] and self.connection_list != []):
+                string = self.display_queue.pop()
                 print(f"{string}")
 
     # Send all contents of send que to all connections
@@ -83,7 +83,7 @@ class p2p_chat_session:
             while(self.send_queue != [] and self.connection_list != []):
                 # Takes first item in list and sends it to all connections
                 string = self.send_queue.pop()
-                self.message_list.append(string)
+                self.display_queue.append(string)
                 for _, send_pipe in self.connection_list:
                     send_pipe.send(string.encode("utf-8"))
 
@@ -94,7 +94,7 @@ class p2p_chat_session:
     # Recives string from peer and ads it to message list
     def recv_str(self, recv_pipe) -> str:
         while(self.active == True):    
-            self.message_list.append(recv_pipe.recv(1024).decode("utf-8"))
+            self.display_queue.append(recv_pipe.recv(1024).decode("utf-8"))
 
     # Sets session to inactive and closes all sockets
     def close_ses(self):
